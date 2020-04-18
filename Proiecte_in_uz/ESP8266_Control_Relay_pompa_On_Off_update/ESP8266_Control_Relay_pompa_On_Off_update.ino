@@ -6,7 +6,7 @@ const char *password = "0000123456"; // fill in here your router or wifi passwor
 IPAddress ip(192, 168, 1, 222);
 #define RELAY 0 // relay connected to  GPIO0
 WiFiServer server(80);
-
+// test git
 int isAutoPowerOff = 1;
 unsigned  long timeReayStart = 1L;
 unsigned  long timeRelayWorking;
