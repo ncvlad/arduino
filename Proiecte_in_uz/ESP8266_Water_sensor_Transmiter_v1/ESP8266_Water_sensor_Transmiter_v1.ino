@@ -1,3 +1,6 @@
+
+// transmite daca este apa sau nu
+
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 
