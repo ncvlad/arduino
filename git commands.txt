@@ -1,0 +1,7 @@
+git status // rosu
+git add .
+git status // verde
+git commit -m "Info despre ce ai modificat"
+git push -u origin master
+
+username:ncvlad

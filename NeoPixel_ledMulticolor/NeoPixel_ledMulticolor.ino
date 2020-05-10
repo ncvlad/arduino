@@ -2,7 +2,7 @@
 //D1 -- digital 10
 //GND -- GND
 #include <Adafruit_NeoPixel.h>
-#define PIN 10
+#define PIN D7
 // Parameter 1 = number of pixels in strip
 // Parameter 2 = pin number (most are valid)
 // Parameter 3 = pixel type flags, add together as needed:
@@ -10,7 +10,7 @@
 //   NEO_GRB     Pixels are wired for GRB bitstream
 //   NEO_KHZ400  400 KHz bitstream (e.g. FLORA pixels)
 //   NEO_KHZ800  800 KHz bitstream (e.g. High Density LED strip)
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(1, PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(1, PIN, NEO_GRB + NEO_KHZ800 + NEO_RGB);
 void setup() {
 strip.begin();
 strip.show(); // Initialize all pixels to 'off'
