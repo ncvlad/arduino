@@ -15,8 +15,10 @@ String postQuery;
 int value;
 int haveToSendData = 0;
 int valueSent = 0;
+int setIntervalExpired = 0;
 
-
+unsigned  long timeLastMessageSent = 1L;
+unsigned  long delayBetweenMessages = 60L;
 
 void setup()
 {
@@ -32,7 +34,7 @@ void setup()
   Serial.print("Connecting to ");
   Serial.println(ssid);
 
-  WiFi.config(IPAddress(192, 168, 1, 222), IPAddress(192, 168, 1, 1), IPAddress(255, 255, 255, 0), IPAddress(192, 168, 1, 1));
+  WiFi.config(IPAddress(192, 168, 1, 223), IPAddress(192, 168, 1, 1), IPAddress(255, 255, 255, 0), IPAddress(192, 168, 1, 1));
   //  WiFi.config(IPAddress(192, 168, 1, 223), IPAddress(192, 168, 1, 1), IPAddress(255, 255, 255, 0), IPAddress(192, 168, 1, 1));
   WiFi.begin(ssid, password);
 
@@ -52,16 +54,23 @@ void loop()
 {
   value = digitalRead(SENSOR);
 
-  if (value > 0) {
+  if (value == 0) {
     Serial.println("V1");
     postQuery = "waterDetected=1";
-    haveToSendData = (valueSent == 0) ? 1 : 0;
+//    haveToSendData = (valueSent == 0) ? 1 : 0;
   } else {
     Serial.println("V0");
     postQuery = "waterDetected=0";
-    haveToSendData = (valueSent == 1) ? 1 : 0;
+//    haveToSendData = (valueSent == 1) ? 0 : 1;
   }
 
+  setIntervalExpired = ((millis() / 1000 - timeLastMessageSent ) > delayBetweenMessages) ? 1 : 0;
+  if (value == 0 && setIntervalExpired == 1) {
+
+    haveToSendData = 1;
+  }
+
+  // veam sa trimitem doar cand se schimba statususl
   if (haveToSendData == 1) {
     Serial.println("hAVE TO SEND DATA");
     HTTPClient http;
@@ -77,7 +86,10 @@ void loop()
     Serial.println(httpCodeTemp);
     Serial.println(payloadTemp);
     http.end();
+    // memoram ultima valoare trimisa
     valueSent = (value > 0) ? 1 : 0;
+    timeLastMessageSent = millis() / 1000;
+    haveToSendData = 0;
   }
   delay(5000);
 

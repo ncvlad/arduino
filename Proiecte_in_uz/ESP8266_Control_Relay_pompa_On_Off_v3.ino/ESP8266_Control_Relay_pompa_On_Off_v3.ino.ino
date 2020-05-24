@@ -9,10 +9,16 @@ WiFiServer server(80);
 // test git
 int isAutoPowerOff = 1;
 int haveToSendData;
+int isWaterPresent = 0;
+
 String measureValue = "0";
 unsigned  long timeReayStart = 1L;
 unsigned  long timeRelayWorking;
 unsigned  long timeToStayOn = 1800000L;
+unsigned  long checkWaterInterval = 60000L;
+int countReceivedMessages = 0;
+int lastCounterMessagesComparation = 0;
+
 String postQuery;
 int value = LOW;
 
@@ -111,8 +117,42 @@ void loop()
 
   // Read the first line of the request
   String request = client.readStringUntil('\r');
+  String request2 = client.readString();
+  Serial.println("Request is:");
   Serial.println(request);
+  Serial.println(request2);
+
   client.flush();
+
+  if (request2.indexOf("waterDetected=0") != -1) {
+    Serial.println("Whater is still prezent");
+    isWaterPresent = 1;
+    countReceivedMessages ++;
+
+  }
+
+  if (request2.indexOf("waterDetected=1") != -1) {
+    Serial.println("Whater is not present. Relay should be OFF");
+    digitalWrite(RELAY, HIGH);
+  }
+
+  // verificam daca dupa un min de la pornire este apa pe furtun
+  if (value = LOW && (millis() - timeReayStart) > checkWaterInterval )  {
+    if (isWaterPresent == 0) {
+      Serial.println("Whater is not present after set time. Relay should be OFF");
+      digitalWrite(RELAY, HIGH);
+    }
+    checkWaterInterval += 120000L;
+    // ne intreseaza doar daca detectorul de apa mai fuctioneaza si trimite mesaje
+    // de asta folosim counter si nu mai folosim millis()
+    if (countReceivedMessages <= lastCounterMessagesComparation ) {
+      // nu se mai primeste mesaj de la detectorul de apa. Problema cu detectorul de apa
+      // pompa trebuie oprita
+      Serial.println("No signal from water detector after 2 minutes.  Relay should be OFF");
+      digitalWrite(RELAY, HIGH); //
+    }
+    lastCounterMessagesComparation = countReceivedMessages;
+  }
 
   // Match the request
   if (request.indexOf("/RELAY=7731") != -1)
@@ -123,6 +163,7 @@ void loop()
     timeReayStart = millis();
     isAutoPowerOff = 1;
     haveToSendData = 1;
+    checkWaterInterval = 60000L;
   }
 
 
